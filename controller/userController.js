@@ -9,6 +9,7 @@ import md5 from 'md5';
 import fs from 'fs/promises'
 import path from 'path'
 import subscribeSchema from '../models/subscribeSchema.js';
+import _ from 'lodash'
 
 export const register = async (req, res) => {
 
@@ -80,10 +81,70 @@ export const subscribe = asyncHandler(async(req,res)=>{
     //已经关注过了
     res.status(401).json({message:'已经关注过了'})
   }else{
-    const user = User.findById(chennelId)
+    const user =await User.findById(chennelId)
     //给被关注的用户粉丝数加1
     user.subscribeCount++
+    await user.save()
+
     await subscribeSchema.create({userId,chennelId})
     res.json({message:'关注成功！'})
   }
+})
+
+//取消订阅
+export const cancelSubscribe = asyncHandler(async(req,res)=>{
+  // console.log(req.query);
+  
+  const { chennelId } = req.query
+  const userId = req.user.userId
+
+  const subscribe = await subscribeSchema.findOne({userId,chennelId})
+  if(subscribe){
+    //取消关注
+    const user = await User.findById(chennelId)
+    user.subscribeCount--
+    await user.save()
+
+    await subscribeSchema.deleteOne({userId,chennelId})
+    res.json({message:'取消订阅成功'})
+  }else{
+    res.status(401).json({message:'还没有订阅该频道'})
+  }
+})
+
+//获取频道信息
+export const getChannel = asyncHandler(async(req,res)=>{
+  const { chennelId } = req.query
+  const userId = req.user.userId
+  //1.先查当前登录用户有没有关注 chennelId这个用户
+  let isSubscribe = false
+  const subscribe = await subscribeSchema.findOne({userId,chennelId})
+  if(subscribe){
+    isSubscribe = true
+  }
+  //2.根据chennelId查询用户信息
+  const user = await User.findById(chennelId)
+                      
+  res.json({
+    ..._.pick(user,['username','subscribeCount']),
+    isSubscribe
+  })
+
+})
+
+//获取订阅列表
+export const getSubscribe = asyncHandler(async(req,res) => {
+  const userId = req.user.userId
+  const subscribeList = await subscribeSchema.find({userId})
+  res.json(subscribeList)
+})
+
+//获取被订阅(粉丝)列表
+export const getChennelList = asyncHandler(async(req,res) =>{
+  const userId = req.user.userId
+  let channelList = await subscribeSchema.find({chennelId:userId}).populate('userId')
+  channelList = channelList.map(item=>{
+    return _.pick(item.userId,['_id','username','age'])
+  })
+  res.json(channelList)
 })

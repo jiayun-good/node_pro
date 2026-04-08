@@ -17,7 +17,7 @@ const videoSchema = new mongoose.Schema({
   userId: {
     type:mongoose.ObjectId,
     require:true,
-    ref:'User'
+    ref:'User' //外键关联的表
   },
   createdAt: {
     type: Date,

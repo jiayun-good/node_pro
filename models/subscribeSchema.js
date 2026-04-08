@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 
 // 1️⃣ 定义结构（Schema）
 const subscribeSchema = new mongoose.Schema({
-  userId: {
+  userId: { //订阅者
     type:mongoose.ObjectId,
     required: true,
     ref:'User'
   },
-  chennelId: {
+  chennelId: { //订阅的频道
     type:mongoose.ObjectId,
     require:true,
     ref:'User'
