@@ -19,6 +19,18 @@ const videoSchema = new mongoose.Schema({
     require:true,
     ref:'User' //外键关联的表
   },
+  commentCount:{ //评论数量
+    type: Number,
+    default: 0
+  },
+  likeCount:{ //点赞
+    type: Number,
+    default: 0
+  },
+  dislikeCount:{ //踩
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now

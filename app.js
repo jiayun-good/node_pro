@@ -17,6 +17,8 @@ app.use('/api/user', userRouter);
 app.use('/api/video', videoRouter);
 app.use(errorHandler); //挂载错误处理
 
-app.listen(3000, () => {
+const server = app.listen(3000, () => {
   console.log('Server is listening on port 3000');
 });
+
+export default app;
